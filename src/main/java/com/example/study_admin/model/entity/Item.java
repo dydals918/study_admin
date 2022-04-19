@@ -1,6 +1,7 @@
 package com.example.study_admin.model.entity;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
+@Accessors(chain = true)
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @ToString(exclude = {"partner", "orderDetailList"})
@@ -29,7 +31,7 @@ public class Item {
     private String name;
     private String title;
     private String content;
-    private Integer price;
+    private BigDecimal price;
     private String brandName;
     private LocalDateTime registeredAt;
     private LocalDateTime unregisteredAt;
