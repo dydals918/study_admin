@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UserApiLogicService implements CrudInterface<UserApiResponse, UserApiRequest> {
@@ -37,17 +38,48 @@ public class UserApiLogicService implements CrudInterface<UserApiResponse, UserA
 
     @Override
     public Header<UserApiResponse> read(Long id) {
-        return null;
+
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        return optionalUser
+                .map(user -> response(user))
+                .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
     @Override
     public Header<UserApiResponse> update(Header<UserApiRequest> request) {
-        return null;
+
+        UserApiRequest userApiRequest = request.getData();
+
+        Optional<User> findUser = userRepository.findById(userApiRequest.getId());
+
+        return findUser
+                .map(user -> {
+                    user.setAccount(userApiRequest.getAccount())
+                            .setPassword(userApiRequest.getPassword())
+                            .setEmail(userApiRequest.getEmail())
+                            .setStatus(userApiRequest.getStatus())
+                            .setPhoneNumber(userApiRequest.getPhoneNumber())
+                            .setRegisteredAt(userApiRequest.getRegisteredAt())
+                            .setUnregisteredAt(userApiRequest.getUnregisteredAt());
+                    return user;
+                })
+                .map(user -> userRepository.save(user))
+                .map(updateUser -> response(updateUser))
+                .orElseGet( () -> Header.ERROR("데이터 없음"));
     }
 
     @Override
     public Header delete(Long id) {
-        return null;
+
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        return optionalUser
+                .map( user -> {
+                    userRepository.delete(user);
+                    return Header.OK();
+                })
+                .orElseGet( () -> Header.ERROR("데이터 없음"));
     }
 
     // user -> userApiResponse
