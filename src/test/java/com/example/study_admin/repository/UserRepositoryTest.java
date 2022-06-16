@@ -10,10 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public class UserRepositoryTest extends StudyAdminApplicationTests {
+/*
+public class baseRepositoyTest extends StudyAdminApplicationTests {
 
     @Autowired
-    private UserRepository userRepository;
+    private baseRepositoy baseRepositoy;
 
     @Test
     public void create(){
@@ -37,7 +38,7 @@ public class UserRepositoryTest extends StudyAdminApplicationTests {
         user.setCreatedAt(LocalDateTime.now());
         user.setCreatedBy("AdminServer");
 
-        User newUser = userRepository.save(user);
+        User newUser = baseRepositoy.save(user);
         Assert.assertNotNull(newUser);
         Assert.assertEquals(newUser.getAccount(), account);
     }
@@ -46,7 +47,7 @@ public class UserRepositoryTest extends StudyAdminApplicationTests {
     @Transactional
     public void read() {
 
-        User user = userRepository.findByPhoneNumberOrderByIdDesc("000-1111-2222");
+        User user = baseRepositoy.findByPhoneNumberOrderByIdDesc("000-1111-2222");
 
         user.getOrderGroupList().stream().forEach(orderGroup -> {
 
@@ -70,31 +71,32 @@ public class UserRepositoryTest extends StudyAdminApplicationTests {
 
     @Test
     public void update() {
-        Optional<User> user = userRepository.findById(2L);
+        Optional<User> user = baseRepositoy.findById(2L);
 
         user.ifPresent(selectUser -> {
             selectUser.setAccount("TestUpdate02");
             selectUser.setUpdatedAt(LocalDateTime.now());
             selectUser.setUpdatedBy("UpdateAdmin01");
 
-            userRepository.save(selectUser);
+            baseRepositoy.save(selectUser);
         });
     }
 
     @Test
     public void delete() {
-        Optional<User> user = userRepository.findById(1L);
+        Optional<User> user = baseRepositoy.findById(1L);
 
         Assert.assertTrue(user.isPresent());
 
         user.ifPresent(selectUser->{
-            userRepository.delete(selectUser);
+            baseRepositoy.delete(selectUser);
         });
 
-        Optional<User> deleteUser = userRepository.findById(1L);
+        Optional<User> deleteUser = baseRepositoy.findById(1L);
 
         Assert.assertFalse(deleteUser.isPresent());
 
         System.out.println("데이터 삭제");
     }
 }
+*/

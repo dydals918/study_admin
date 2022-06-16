@@ -1,20 +1,15 @@
 package com.example.study_admin.service;
 
-import com.example.study_admin.ifs.CrudInterface;
 import com.example.study_admin.model.entity.OrderGroup;
 import com.example.study_admin.model.network.Header;
 import com.example.study_admin.model.network.request.OrderGroupApiRequest;
 import com.example.study_admin.model.network.response.OrderGroupApiResponse;
-import com.example.study_admin.repository.OrderGroupRepository;
 import com.example.study_admin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiResponse, OrderGroupApiRequest> {
-
-    @Autowired
-    private OrderGroupRepository orderGroupRepository;
+public class OrderGroupApiLogicService extends BaseService<OrderGroupApiResponse, OrderGroupApiRequest, OrderGroup> {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,14 +32,14 @@ public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiRes
                 .user(userRepository.getOne(body.getUserId()))
                 .build();
 
-        OrderGroup createOrderGroup = orderGroupRepository.save(orderGroup);
+        OrderGroup createOrderGroup = baseRepository.save(orderGroup);
 
         return response(createOrderGroup);
     }
 
     @Override
     public Header<OrderGroupApiResponse> read(Long id) {
-        return orderGroupRepository.findById(id)
+        return baseRepository.findById(id)
                 .map(findOrder -> response(findOrder))
                 .orElseGet(()->Header.ERROR("데이터 없음"));
     }
@@ -54,7 +49,7 @@ public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiRes
 
         OrderGroupApiRequest body = request.getData();
 
-        return orderGroupRepository.findById(body.getId())
+        return baseRepository.findById(body.getId())
                 .map(findOrder -> {
                     findOrder
                             .setId(body.getId())
@@ -71,7 +66,7 @@ public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiRes
 
                     return findOrder;
                 })
-                .map(findOrder -> orderGroupRepository.save(findOrder))
+                .map(findOrder -> baseRepository.save(findOrder))
                 .map(updateOrder -> response(updateOrder))
                 .orElseGet(()->Header.ERROR("데이터 없음"));
     }
@@ -79,9 +74,9 @@ public class OrderGroupApiLogicService implements CrudInterface<OrderGroupApiRes
     @Override
     public Header delete(Long id) {
 
-        return orderGroupRepository.findById(id)
+        return baseRepository.findById(id)
                 .map(findOrder -> {
-                    orderGroupRepository.delete(findOrder);
+                    baseRepository.delete(findOrder);
                     return Header.OK();
                 })
                 .orElseGet(()->Header.ERROR("데이터 없음"));
