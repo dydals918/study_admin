@@ -26,7 +26,7 @@ public class UserApiLogicService implements CrudInterface<UserApiResponse, UserA
         User user = User.builder()
                         .account(userApiRequest.getAccount())
                         .password(userApiRequest.getPassword())
-                        .status("REGISTERED")
+                        .status(userApiRequest.getStatus())
                         .email(userApiRequest.getEmail())
                         .phoneNumber(userApiRequest.getPhoneNumber())
                         .registeredAt(LocalDateTime.now())

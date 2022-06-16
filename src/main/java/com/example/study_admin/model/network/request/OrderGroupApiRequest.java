@@ -1,5 +1,8 @@
 package com.example.study_admin.model.network.request;
 
+import com.example.study_admin.model.enumClass.enumOrder.OrderStatus;
+import com.example.study_admin.model.enumClass.enumOrder.OrderType;
+import com.example.study_admin.model.enumClass.enumOrder.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,15 +19,15 @@ public class OrderGroupApiRequest {
 
     private Long id;
 
-    private String status;
+    private OrderStatus status;
 
-    private String orderType;
+    private OrderType orderType;
 
     private String revAddress;
 
     private String revName;
 
-    private String paymentType;
+    private PaymentType paymentType;
 
     private BigDecimal totalPrice;
 

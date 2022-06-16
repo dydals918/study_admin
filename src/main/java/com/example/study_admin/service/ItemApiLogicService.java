@@ -2,6 +2,7 @@ package com.example.study_admin.service;
 
 import com.example.study_admin.ifs.CrudInterface;
 import com.example.study_admin.model.entity.Item;
+import com.example.study_admin.model.enumClass.ItemStatus;
 import com.example.study_admin.model.network.Header;
 import com.example.study_admin.model.network.request.ItemApiRequest;
 import com.example.study_admin.model.network.response.ItemApiResponse;
