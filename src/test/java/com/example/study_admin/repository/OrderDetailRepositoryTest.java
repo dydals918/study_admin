@@ -19,7 +19,6 @@ public class OrderDetailRepositoryTest extends StudyAdminApplicationTests {
     public void create() {
 
         OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setStatus("WAITING");
         orderDetail.setArrivalDate(LocalDateTime.now().plusDays(2));
         orderDetail.setQuantity(1);
         orderDetail.setTotalPrice(BigDecimal.valueOf(900000));

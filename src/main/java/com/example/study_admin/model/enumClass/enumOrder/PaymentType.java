@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum PaymentType {
 
     CARD(0, "카드", "카드 결제"),
-    MONEY(1, "현금", "현금 결제");
+    CHECK_CARD(1, "체크 카드", "체크 카드 결제"),
+    BANK_TRANSFER(2, "송금", "은행 송금");
 
     private Integer id;
     private String title;

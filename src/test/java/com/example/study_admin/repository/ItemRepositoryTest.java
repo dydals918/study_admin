@@ -19,7 +19,6 @@ public class ItemRepositoryTest extends StudyAdminApplicationTests {
     public void create() {
 
         Item item = new Item();
-        item.setStatus("UNREGISTERED");
         item.setName("삼성 노트북");
         item.setTitle("삼성 노트북");
         item.setContent("노트북");

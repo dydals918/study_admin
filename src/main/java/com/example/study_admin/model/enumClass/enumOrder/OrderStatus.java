@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public enum OrderStatus {
 
-    SEND(0, "발송", "상품 발송"),
-    WAITING(1, "대기", "상품 대기"),
+    ORDERING(0, "주문", "상품 주문"),
+    CONFIRM(1, "대기", "상품 대기"),
     COMPLETE(2, "완료", "상품 도착")
     ;
 
