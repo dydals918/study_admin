@@ -2,11 +2,17 @@ package com.example.study_admin.service;
 
 import com.example.study_admin.model.entity.Partner;
 import com.example.study_admin.model.network.Header;
+import com.example.study_admin.model.network.Pagination;
 import com.example.study_admin.model.network.request.PartnerApiRequest;
 import com.example.study_admin.model.network.response.PartnerApiResponse;
 import com.example.study_admin.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PartnerApiLogicService extends BaseService<PartnerApiResponse, PartnerApiRequest, Partner> {
@@ -33,14 +39,14 @@ public class PartnerApiLogicService extends BaseService<PartnerApiResponse, Part
 
         Partner createPartner = baseRepository.save(partner);
 
-        return response(createPartner);
+        return Header.OK(response(createPartner));
     }
 
     @Override
     public Header<PartnerApiResponse> read(Long id) {
 
         return baseRepository.findById(id)
-                .map(findPartner -> response(findPartner))
+                .map(findPartner -> Header.OK(response(findPartner)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"))
                 ;
 
@@ -67,7 +73,7 @@ public class PartnerApiLogicService extends BaseService<PartnerApiResponse, Part
                     return findPartner;
                 })
                 .map(findPartner -> baseRepository.save(findPartner))
-                .map(updatePartner -> response(updatePartner))
+                .map(updatePartner -> Header.OK(response(updatePartner)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"))
                 ;
     }
@@ -82,7 +88,25 @@ public class PartnerApiLogicService extends BaseService<PartnerApiResponse, Part
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
-    private Header<PartnerApiResponse> response(Partner partner){
+    @Override
+    public Header<List<PartnerApiResponse>> search(Pageable pageable) {
+        Page<Partner> partners = baseRepository.findAll(pageable);
+
+        List<PartnerApiResponse> partnerApiResponseList = partners.stream()
+                .map(partner -> response(partner))
+                .collect(Collectors.toList());
+
+        Pagination pagination = Pagination.builder()
+                .totalPage(partners.getTotalPages())
+                .totalElements(partners.getTotalElements())
+                .currentPage(partners.getNumber())
+                .currentElements(partners.getNumberOfElements())
+                .build();
+
+        return Header.OK(partnerApiResponseList, pagination);
+    }
+
+    private PartnerApiResponse response(Partner partner){
 
         PartnerApiResponse body = PartnerApiResponse.builder()
                 .id(partner.getId())
@@ -98,6 +122,6 @@ public class PartnerApiLogicService extends BaseService<PartnerApiResponse, Part
                 .categoryId(partner.getCategory().getId())
                 .build();
 
-        return Header.OK(body);
+        return body;
     }
 }

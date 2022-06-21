@@ -2,11 +2,16 @@ package com.example.study_admin.service;
 
 import com.example.study_admin.model.entity.AdminUser;
 import com.example.study_admin.model.network.Header;
+import com.example.study_admin.model.network.Pagination;
 import com.example.study_admin.model.network.request.AdminUserApiRequest;
 import com.example.study_admin.model.network.response.AdminUserApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminUserApiLogicService extends BaseService<AdminUserApiResponse, AdminUserApiRequest, AdminUser> {
@@ -26,13 +31,13 @@ public class AdminUserApiLogicService extends BaseService<AdminUserApiResponse, 
 
         AdminUser createAdminUser = baseRepository.save(adminUser);
 
-        return response(createAdminUser);
+        return Header.OK(response(createAdminUser));
     }
 
     @Override
     public Header<AdminUserApiResponse> read(Long id) {
         return baseRepository.findById(id)
-                .map(findAdminUser -> response(findAdminUser))
+                .map(findAdminUser -> Header.OK(response(findAdminUser)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
@@ -54,7 +59,7 @@ public class AdminUserApiLogicService extends BaseService<AdminUserApiResponse, 
                     return findAdminUser;
                 })
                 .map(findAdminUser -> baseRepository.save(findAdminUser))
-                .map(updateAdminUser -> response(updateAdminUser))
+                .map(updateAdminUser -> Header.OK(response(updateAdminUser)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
@@ -68,7 +73,27 @@ public class AdminUserApiLogicService extends BaseService<AdminUserApiResponse, 
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
-    private Header<AdminUserApiResponse> response(AdminUser adminUser){
+    @Override
+    public Header<List<AdminUserApiResponse>> search(Pageable pageable) {
+
+        Page<AdminUser> adminUsers = baseRepository.findAll(pageable);
+
+        List<AdminUserApiResponse> adminUserApiResList = adminUsers.stream()
+                .map(adminUser -> response(adminUser))
+                .collect(Collectors.toList());
+
+        Pagination pagination = Pagination.builder()
+                .totalPage(adminUsers.getTotalPages())
+                .totalElements(adminUsers.getTotalElements())
+                .currentPage(adminUsers.getNumber())
+                .currentElements(adminUsers.getNumberOfElements())
+                .build();
+
+        return Header.OK(adminUserApiResList, pagination);
+
+    }
+
+    private AdminUserApiResponse response(AdminUser adminUser){
 
         AdminUserApiResponse body = AdminUserApiResponse.builder()
                 .id(adminUser.getId())
@@ -81,7 +106,7 @@ public class AdminUserApiLogicService extends BaseService<AdminUserApiResponse, 
                 .unregisteredAt(adminUser.getUnregisteredAt())
                 .build();
 
-        return Header.OK(body);
+        return body;
     }
 
 }

@@ -2,13 +2,18 @@ package com.example.study_admin.service;
 
 import com.example.study_admin.model.entity.Item;
 import com.example.study_admin.model.network.Header;
+import com.example.study_admin.model.network.Pagination;
 import com.example.study_admin.model.network.request.ItemApiRequest;
 import com.example.study_admin.model.network.response.ItemApiResponse;
 import com.example.study_admin.repository.PartnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemApiLogicService extends BaseService<ItemApiResponse, ItemApiRequest, Item> {
@@ -34,14 +39,14 @@ public class ItemApiLogicService extends BaseService<ItemApiResponse, ItemApiReq
 
         Item newItem = baseRepository.save(item);
 
-        return response(newItem);
+        return Header.OK(response(newItem));
     }
 
     @Override
     public Header<ItemApiResponse> read(Long id) {
 
         return baseRepository.findById(id)
-                .map(item -> response(item))
+                .map(item -> Header.OK(response(item)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
 
     }
@@ -66,7 +71,7 @@ public class ItemApiLogicService extends BaseService<ItemApiResponse, ItemApiReq
                     return entityItem;
                 })
                 .map(updateItem -> baseRepository.save(updateItem))
-                .map(updateItem -> response(updateItem))
+                .map(updateItem -> Header.OK(response(updateItem)))
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
 
     }
@@ -81,7 +86,26 @@ public class ItemApiLogicService extends BaseService<ItemApiResponse, ItemApiReq
                 .orElseGet(() -> Header.ERROR("데이터 없음"));
     }
 
-    private Header<ItemApiResponse> response(Item item){
+    @Override
+    public Header<List<ItemApiResponse>> search(Pageable pageable) {
+
+        Page<Item> items = baseRepository.findAll(pageable);
+
+        List<ItemApiResponse> itemApiResList = items.stream()
+                .map(item -> response(item))
+                .collect(Collectors.toList());
+
+        Pagination pagination = Pagination.builder()
+                .totalPage(items.getTotalPages())
+                .totalElements(items.getTotalElements())
+                .currentPage(items.getNumber())
+                .currentElements(items.getNumberOfElements())
+                .build();
+
+        return Header.OK(itemApiResList, pagination);
+    }
+
+    private ItemApiResponse response(Item item){
 
         ItemApiResponse body = ItemApiResponse.builder()
                 .id(item.getId())
@@ -96,6 +120,6 @@ public class ItemApiLogicService extends BaseService<ItemApiResponse, ItemApiReq
                 .partnerId(item.getPartner().getId())
                 .build();
 
-        return Header.OK(body);
+        return body;
     }
 }
