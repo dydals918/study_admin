@@ -1,15 +1,19 @@
 package com.example.study_admin.service;
 
+import com.example.study_admin.model.entity.Item;
+import com.example.study_admin.model.entity.OrderGroup;
 import com.example.study_admin.model.entity.User;
 import com.example.study_admin.model.network.Header;
 import com.example.study_admin.model.network.Pagination;
 import com.example.study_admin.model.network.request.UserApiRequest;
-import com.example.study_admin.model.network.response.UserApiResponse;
+import com.example.study_admin.model.network.response.ItemApiResponse;
+import com.example.study_admin.model.network.response.OrderGroupApiResponse;
+import com.example.study_admin.model.network.response.userApi.UserApiResponse;
+import com.example.study_admin.model.network.response.userApi.UserOrderInfoApiResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -18,6 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserApiLogicService extends BaseService<UserApiResponse, UserApiRequest, User> {
+
+    @Autowired
+    private OrderGroupApiLogicService orderGroupApiLogicService;
+
+    @Autowired
+    private ItemApiLogicService itemApiLogicService;
 
     @Override
     public Header<UserApiResponse> create(Header<UserApiRequest> request) {
@@ -83,6 +93,7 @@ public class UserApiLogicService extends BaseService<UserApiResponse, UserApiReq
                 .orElseGet( () -> Header.ERROR("데이터 없음"));
     }
 
+    @Override
     public Header<List<UserApiResponse>> search(Pageable pageable){
 
         Page<User> users = baseRepository.findAll(pageable);
@@ -99,6 +110,35 @@ public class UserApiLogicService extends BaseService<UserApiResponse, UserApiReq
                 .build();
 
         return Header.OK(userApiResponseList, pagination);
+    }
+
+    public Header<UserOrderInfoApiResponse> orderInfo(Long id) {
+
+        User user = baseRepository.getOne(id);
+        UserApiResponse userApiRes = response(user);
+
+        List<OrderGroup> orderGroupList = user.getOrderGroupList();
+
+        List<OrderGroupApiResponse> orderGroupApiResList = orderGroupList.stream()
+                .map(orderGroup -> {
+                    OrderGroupApiResponse orderGroupApiRes = orderGroupApiLogicService.response(orderGroup);
+
+                    List<ItemApiResponse> itemList = orderGroup.getOrderDetailList().stream()
+                            .map(detail -> detail.getItem())
+                            .map(item -> itemApiLogicService.response(item))
+                            .collect(Collectors.toList());
+
+                    orderGroupApiRes.setItemApiResList(itemList);
+                    return orderGroupApiRes;
+                })
+                .collect(Collectors.toList());
+
+        userApiRes.setOrderGroupApiResList(orderGroupApiResList);
+        UserOrderInfoApiResponse userOrderInfoApiRes = UserOrderInfoApiResponse.builder()
+                .userApiRes(userApiRes)
+                .build();
+
+        return Header.OK(userOrderInfoApiRes);
     }
 
     // user -> userApiResponse

@@ -1,12 +1,14 @@
-package com.example.study_admin.model.network.response;
+package com.example.study_admin.model.network.response.userApi;
 
 import com.example.study_admin.model.enumClass.UserStatus;
+import com.example.study_admin.model.network.response.OrderGroupApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,5 +31,7 @@ public class UserApiResponse {
     private LocalDateTime registeredAt;
 
     private LocalDateTime unregisteredAt;
+
+    private List<OrderGroupApiResponse> orderGroupApiResList;
 
 }
